@@ -15,6 +15,7 @@ const PolicyRules = ({ policy, onChange }: PolicyRulesProps) => {
                 value={policy.to}
                 onChange={(val) => onChange('to', val)}
                 placeholder="PUBLIC, role1, role2"
+                tooltip="Roles this policy applies to (e.g., authenticated, anon)."
             />
 
             <HorizontalTextArea
@@ -24,6 +25,7 @@ const PolicyRules = ({ policy, onChange }: PolicyRulesProps) => {
                 placeholder="SQL expression for USING clause"
                 rows={3}
                 alignTop={true}
+                tooltip="Expression to check for existing rows (SELECT, UPDATE, DELETE)."
             />
 
             <HorizontalTextArea
@@ -33,6 +35,7 @@ const PolicyRules = ({ policy, onChange }: PolicyRulesProps) => {
                 placeholder="SQL expression for WITH CHECK clause"
                 rows={3}
                 alignTop={true}
+                tooltip="Expression to check for new rows (INSERT, UPDATE)."
             />
         </div>
     );

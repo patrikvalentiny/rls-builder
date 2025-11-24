@@ -1,15 +1,19 @@
+import Tooltip from "./Tooltip";
+
 interface FormInputProps {
     label: string;
     value: string;
     onChange: (value: string) => void;
     placeholder?: string;
+    tooltip?: string;
 }
 
-const FormInput = ({ label, value, onChange, placeholder }: FormInputProps) => {
+const FormInput = ({ label, value, onChange, placeholder, tooltip }: FormInputProps) => {
     return (
         <div className="form-control">
-            <label className="label">
+            <label className="label flex justify-start items-center">
                 <span className="label-text font-semibold">{label}</span>
+                {tooltip && <Tooltip text={tooltip} />}
             </label>
             <input
                 type="text"

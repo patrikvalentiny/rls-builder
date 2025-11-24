@@ -18,6 +18,7 @@ const GeneralInfo = ({ policy, onChange }: GeneralInfoProps) => {
                 placeholder="Enter policy name"
                 className="md:col-span-2"
                 labelClassName="font-semibold text-sm whitespace-nowrap"
+                tooltip="A descriptive name for the policy."
             />
             
             <FormInput
@@ -25,6 +26,7 @@ const GeneralInfo = ({ policy, onChange }: GeneralInfoProps) => {
                 value={policy.schema}
                 onChange={(val) => onChange('schema', val)}
                 placeholder="public"
+                tooltip="The database schema (default: public)."
             />
 
             <FormInput
@@ -32,6 +34,7 @@ const GeneralInfo = ({ policy, onChange }: GeneralInfoProps) => {
                 value={policy.table}
                 onChange={(val) => onChange('table', val)}
                 placeholder="table_name"
+                tooltip="The table this policy applies to."
             />
 
             <FormSelect
@@ -39,6 +42,7 @@ const GeneralInfo = ({ policy, onChange }: GeneralInfoProps) => {
                 value={policy.as}
                 onChange={(val) => onChange('as', val)}
                 options={[...POLICY_TYPES]}
+                tooltip="PERMISSIVE (additive) or RESTRICTIVE (must pass)."
             />
 
             <FormSelect
@@ -46,6 +50,7 @@ const GeneralInfo = ({ policy, onChange }: GeneralInfoProps) => {
                 value={policy.for}
                 onChange={(val) => onChange('for', val)}
                 options={[...COMMAND_TYPES]}
+                tooltip="The operation this policy applies to (SELECT, INSERT, etc.)."
             />
         </div>
     );
