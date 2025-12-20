@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
 import type { CreatePolicy } from "../types/createPolicy";
-import Header from "./Header";
-import PolicyForm from "./PolicyForm";
-import SqlPreview from "./SqlPreview";
+import Header from "../components/Header";
+import PolicyForm from "../components/PolicyForm";
+import SqlPreview from "../components/SqlPreview";
 
-const Code = () => {
+const PolicyBuilder = () => {
     const [policy, setPolicy] = useState<CreatePolicy>({
         name: 'Authenticated users can delete their own records',
         schema: 'public',
@@ -43,4 +43,4 @@ const Code = () => {
     );
 };
 
-export default Code;
+export default PolicyBuilder;
