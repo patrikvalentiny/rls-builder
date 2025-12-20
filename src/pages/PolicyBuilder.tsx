@@ -3,9 +3,10 @@ import type { CreatePolicy } from "../types/createPolicy";
 import Header from "../components/Header";
 import PolicyForm from "../components/PolicyForm";
 import SqlPreview from "../components/SqlPreview";
-import localforage from "localforage";
-import { buildCreatePolicySql } from "../utils/policySql";
+import { buildCreatePolicySql } from "../utils/policyBuilder";
 import { makeBlankPolicy, upsertPolicy } from "../utils/policyStore";
+import { BUILDER_LAST_SQL } from "../utils/storageKeys";
+import { rls_store } from "../utils/storage";
 
 const PolicyBuilder = () => {
     const [policy, setPolicy] = useState<CreatePolicy>(
@@ -26,7 +27,7 @@ const PolicyBuilder = () => {
 
     useEffect(() => {
         const loadSavedPolicy = async () => {
-            const savedPolicy = await localforage.getItem<CreatePolicy>('savedPolicy');
+            const savedPolicy = await rls_store.getItem<CreatePolicy>(BUILDER_LAST_SQL);
             if (savedPolicy) {
                 setPolicy(savedPolicy);
             }
@@ -36,7 +37,7 @@ const PolicyBuilder = () => {
 
     const handleChange = (field: keyof CreatePolicy, value: string) => {
         setPolicy(prev => ({ ...prev, [field]: value }));
-        localforage.setItem('savedPolicy', { ...policy, [field]: value });
+        rls_store.setItem(BUILDER_LAST_SQL, { ...policy, [field]: value });
     };
 
     const handleSaveToOverview = async () => {

@@ -1,26 +1,12 @@
-import localforage from 'localforage';
-import type { CreatePolicy } from '../types/createPolicy';
+import { v6 as uuidv6 } from 'uuid';
+import type { StoredPolicy } from '../types/storedPolicy';
+import { POLICIES_KEY } from './storageKeys';
+import { rls_store } from './storage';
 
-export interface StoredPolicy extends CreatePolicy {
-    id: string;
-    documentation: string;
-    createdAt: number;
-    updatedAt: number;
-}
 
-const store = localforage.createInstance({
-    name: 'rls-builder',
-    storeName: 'policies'
-});
-
-const POLICIES_KEY = 'policies:v1';
 
 function makeId(): string {
-    if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-        return crypto.randomUUID();
-    }
-
-    return `p_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+    return uuidv6();
 }
 
 export function makeBlankPolicy(): StoredPolicy {
@@ -42,12 +28,12 @@ export function makeBlankPolicy(): StoredPolicy {
 }
 
 export async function listPolicies(): Promise<StoredPolicy[]> {
-    const policies = await store.getItem<StoredPolicy[]>(POLICIES_KEY);
+    const policies = await rls_store.getItem<StoredPolicy[]>(POLICIES_KEY);
     return Array.isArray(policies) ? policies : [];
 }
 
 async function writePolicies(policies: StoredPolicy[]): Promise<void> {
-    await store.setItem(POLICIES_KEY, policies);
+    await rls_store.setItem(POLICIES_KEY, policies);
 }
 
 export async function upsertPolicy(policy: StoredPolicy): Promise<void> {

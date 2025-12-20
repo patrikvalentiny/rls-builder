@@ -3,8 +3,9 @@ import CodeEditor from '@uiw/react-textarea-code-editor';
 import Header from "../components/Header";
 import { parsePolicy } from "../utils/policyParser";
 import type { CreatePolicy } from "../types/createPolicy";
-import localforage from "localforage";
 import { makeBlankPolicy, upsertPolicy } from "../utils/policyStore";
+import { PARSER_LAST_SQL } from "../utils/storageKeys";
+import { rls_store } from "../utils/storage";
 
 const PolicyParser = () => {
     const [sqlInput, setSqlInput] = useState("");
@@ -12,10 +13,11 @@ const PolicyParser = () => {
     const [error, setError] = useState<string | null>(null);
     const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
+  
 
     useEffect(() => {
         const loadSavedSql = async () => {
-            const savedSql = await localforage.getItem<string>('savedPolicySql');
+            const savedSql = await rls_store.getItem<string>(PARSER_LAST_SQL);
             if (savedSql) {
                 setSqlInput(savedSql);
                 try {
@@ -33,7 +35,7 @@ const PolicyParser = () => {
 
     const handleSqlChange = (value: string) => {
         setSqlInput(value);
-        localforage.setItem('savedPolicySql', value);
+        rls_store.setItem(PARSER_LAST_SQL, value);
 
         if (!value.trim()) {
             setParsedPolicy(null);

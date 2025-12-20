@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import Header from "../components/Header";
-import type { StoredPolicy } from '../utils/policyStore';
 import { deletePolicy, listPolicies, makeBlankPolicy, upsertPolicy } from '../utils/policyStore';
-import { buildCreatePolicySql } from '../utils/policySql';
+import { buildCreatePolicySql } from '../utils/policyBuilder';
 import PolicyForm from '../components/PolicyForm';
 import SqlPreview from '../components/SqlPreview';
 import type { CreatePolicy } from '../types/createPolicy';
+import type { StoredPolicy } from '../types/storedPolicy';
 
 const cellClass = 'align-top text-xs';
 

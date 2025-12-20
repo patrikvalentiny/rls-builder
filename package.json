@@ -17,6 +17,7 @@
     "react-dom": "^19.2.0",
     "sql-formatter": "^15.6.10",
     "tailwindcss": "^4.1.17",
+    "uuid": "^13.0.0",
     "wouter": "^3.9.0"
   },
   "devDependencies": {
