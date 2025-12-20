@@ -4,6 +4,8 @@ import Header from "../components/Header";
 import PolicyForm from "../components/PolicyForm";
 import SqlPreview from "../components/SqlPreview";
 import localforage from "localforage";
+import { buildCreatePolicySql } from "../utils/policySql";
+import { makeBlankPolicy, upsertPolicy } from "../utils/policyStore";
 
 const PolicyBuilder = () => {
     const [policy, setPolicy] = useState<CreatePolicy>(
@@ -18,15 +20,9 @@ const PolicyBuilder = () => {
         withCheck: ''
     });
 
-    const code = useMemo(() => {
-        let sql = `CREATE POLICY "${policy.name}" ON ${policy.schema ? policy.schema + '.' : ''}${policy.table}`;
-        if (policy.as !== 'PERMISSIVE') sql += ` AS ${policy.as}`;
-        if (policy.for !== 'ALL') sql += ` FOR ${policy.for}`;
-        if (policy.to !== 'PUBLIC') sql += ` TO ${policy.to}`;
-        if (policy.using.trim()) sql += ` USING (${policy.using})`;
-        if (policy.withCheck.trim()) sql += ` WITH CHECK (${policy.withCheck})`;
-        return sql;
-    }, [policy]);
+    const code = useMemo(() => buildCreatePolicySql(policy), [policy]);
+
+    const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
     useEffect(() => {
         const loadSavedPolicy = async () => {
@@ -43,13 +39,32 @@ const PolicyBuilder = () => {
         localforage.setItem('savedPolicy', { ...policy, [field]: value });
     };
 
+    const handleSaveToOverview = async () => {
+        const base = makeBlankPolicy();
+        await upsertPolicy({
+            ...base,
+            ...policy,
+            documentation: ''
+        });
+        setSaveStatus('Saved to Overview');
+        window.setTimeout(() => setSaveStatus(null), 2000);
+    };
+
     return (
         <div className="min-h-screen bg-base-100 p-6">
             <div className="max-w-7xl mx-auto">
                 <Header />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <PolicyForm policy={policy} onChange={handleChange} />
-                    <SqlPreview code={code} />
+                    <div className="flex flex-col gap-3">
+                        <div className="flex items-center justify-between">
+                            <button className="btn btn-primary btn-sm" onClick={handleSaveToOverview}>
+                                Save to Overview
+                            </button>
+                            {saveStatus && <div className="text-sm text-success">{saveStatus}</div>}
+                        </div>
+                        <SqlPreview code={code} />
+                    </div>
                 </div>
             </div>
         </div>

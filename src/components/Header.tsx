@@ -13,15 +13,15 @@ const Header = () => {
             <p className="text-lg mb-6">Create Row Level Security policies with ease</p>
             
             <div className="flex justify-center gap-4">
+                <Link href="/overview">
+                    <a className={getLinkClass('/overview')}>Overview</a>
+                </Link>
                 <Link href="/builder">
                     <a className={getLinkClass('/builder')}>Builder</a>
                 </Link>
                 <Link href="/parser">
                     <a className={getLinkClass('/parser')}>Parser</a>
-                </Link>
-                <Link href="/overview">
-                    <a className={getLinkClass('/overview')}>Overview</a>
-                </Link>
+                </Link> 
             </div>
         </div>
     );

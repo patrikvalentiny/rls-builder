@@ -4,11 +4,14 @@ import Header from "../components/Header";
 import { parsePolicy } from "../utils/policyParser";
 import type { CreatePolicy } from "../types/createPolicy";
 import localforage from "localforage";
+import { makeBlankPolicy, upsertPolicy } from "../utils/policyStore";
 
 const PolicyParser = () => {
     const [sqlInput, setSqlInput] = useState("");
     const [parsedPolicy, setParsedPolicy] = useState<CreatePolicy | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [saveStatus, setSaveStatus] = useState<string | null>(null);
+
 
     useEffect(() => {
         const loadSavedSql = async () => {
@@ -48,10 +51,21 @@ const PolicyParser = () => {
         }
     };
 
+    const handleSaveToOverview = async () => {
+        const base = makeBlankPolicy();
+        await upsertPolicy({
+            ...base,
+            ...parsedPolicy,
+            documentation: ''
+        });
+        setSaveStatus('Saved to Overview');
+        window.setTimeout(() => setSaveStatus(null), 2000);
+    };
+
     const renderRow = (label: string, value: string) => (
         <>
             <div className="py-3 font-semibold text-base-content/70 border-b border-base-200">{label}</div>
-            <div className="py-3 font-mono text-sm break-words border-b border-base-200">{value || <span className="opacity-30">-</span>}</div>
+            <div className="py-3 font-mono text-sm wrap-break-word border-b border-base-200">{value || <span className="opacity-30">-</span>}</div>
         </>
     );
 
@@ -89,20 +103,30 @@ const PolicyParser = () => {
                                     <span>{error}</span>
                                 </div>
                             ) : parsedPolicy ? (
-                                <div className="grid grid-cols-[120px_1fr] gap-x-4">
-                                    {renderRow("Name", parsedPolicy.name)}
-                                    {renderRow("Schema", parsedPolicy.schema)}
-                                    {renderRow("Table", parsedPolicy.table)}
-                                    {renderRow("As", parsedPolicy.as)}
-                                    {renderRow("For", parsedPolicy.for)}
-                                    {renderRow("To", parsedPolicy.to)}
-                                    {renderRow("Using", parsedPolicy.using)}
-                                    {renderRow("With Check", parsedPolicy.withCheck)}
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex items-center justify-between">
+                                        <button className="btn btn-primary btn-sm" onClick={handleSaveToOverview}>
+                                            Save to Overview
+                                        </button>
+                                        {saveStatus && <div className="text-sm text-success">{saveStatus}</div>}
+                                    </div>
+
+                                    <div className="grid grid-cols-[120px_1fr] gap-x-4">
+                                        {renderRow("Name", parsedPolicy.name)}
+                                        {renderRow("Schema", parsedPolicy.schema)}
+                                        {renderRow("Table", parsedPolicy.table)}
+                                        {renderRow("As", parsedPolicy.as)}
+                                        {renderRow("For", parsedPolicy.for)}
+                                        {renderRow("To", parsedPolicy.to)}
+                                        {renderRow("Using", parsedPolicy.using)}
+                                        {renderRow("With Check", parsedPolicy.withCheck)}
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="flex items-center justify-center h-full min-h-[400px] text-base-content/50 italic bg-base-200/50 rounded-lg">
                                     Enter a valid SQL policy to see details
                                 </div>
+
                             )}
                         </div>
                     </div>
