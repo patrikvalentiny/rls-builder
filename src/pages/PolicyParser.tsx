@@ -1,17 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import Header from "../components/Header";
 import { parsePolicy } from "../utils/policyParser";
 import type { CreatePolicy } from "../types/createPolicy";
+import localforage from "localforage";
 
 const PolicyParser = () => {
     const [sqlInput, setSqlInput] = useState("");
     const [parsedPolicy, setParsedPolicy] = useState<CreatePolicy | null>(null);
     const [error, setError] = useState<string | null>(null);
 
+    useEffect(() => {
+        const loadSavedSql = async () => {
+            const savedSql = await localforage.getItem<string>('savedPolicySql');
+            if (savedSql) {
+                setSqlInput(savedSql);
+                try {
+                    const result = parsePolicy(savedSql);
+                    setParsedPolicy(result);
+                    setError(null);
+                } catch (err) {
+                    setParsedPolicy(null);
+                    setError((err as Error).message);
+                }
+            }
+        };
+        loadSavedSql();
+    }, []);
+
     const handleSqlChange = (value: string) => {
         setSqlInput(value);
-        
+        localforage.setItem('savedPolicySql', value);
+
         if (!value.trim()) {
             setParsedPolicy(null);
             setError(null);

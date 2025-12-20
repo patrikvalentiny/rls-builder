@@ -1,11 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { CreatePolicy } from "../types/createPolicy";
 import Header from "../components/Header";
 import PolicyForm from "../components/PolicyForm";
 import SqlPreview from "../components/SqlPreview";
+import localforage from "localforage";
 
 const PolicyBuilder = () => {
-    const [policy, setPolicy] = useState<CreatePolicy>({
+    const [policy, setPolicy] = useState<CreatePolicy>(
+        {
         name: 'Authenticated users can delete their own records',
         schema: 'public',
         table: 'user_details',
@@ -17,7 +19,7 @@ const PolicyBuilder = () => {
     });
 
     const code = useMemo(() => {
-        let sql = `CREATE POLICY "${policy.name}" ON ${policy.schema}.${policy.table}`;
+        let sql = `CREATE POLICY "${policy.name}" ON ${policy.schema ? policy.schema + '.' : ''}${policy.table}`;
         if (policy.as !== 'PERMISSIVE') sql += ` AS ${policy.as}`;
         if (policy.for !== 'ALL') sql += ` FOR ${policy.for}`;
         if (policy.to !== 'PUBLIC') sql += ` TO ${policy.to}`;
@@ -26,8 +28,19 @@ const PolicyBuilder = () => {
         return sql;
     }, [policy]);
 
+    useEffect(() => {
+        const loadSavedPolicy = async () => {
+            const savedPolicy = await localforage.getItem<CreatePolicy>('savedPolicy');
+            if (savedPolicy) {
+                setPolicy(savedPolicy);
+            }
+        };
+        loadSavedPolicy();
+    }, []);
+
     const handleChange = (field: keyof CreatePolicy, value: string) => {
         setPolicy(prev => ({ ...prev, [field]: value }));
+        localforage.setItem('savedPolicy', { ...policy, [field]: value });
     };
 
     return (
