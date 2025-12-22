@@ -1,0 +1,16 @@
+
+interface BuilderPolicy extends CreatePolicy {
+    documentation: string;
+}
+
+export const DEFAULT_POLICY: BuilderPolicy = {
+    name: '',
+    schema: 'public',
+    table: '',
+    as: 'PERMISSIVE',
+    for: 'ALL',
+    to: '',
+    using: '',
+    withCheck: '',
+    documentation: ''
+};

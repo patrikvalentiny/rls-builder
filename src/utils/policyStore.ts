@@ -21,6 +21,7 @@ export function makeBlankPolicy(): StoredPolicy {
         to: 'public',
         using: '',
         withCheck: '',
+        collection: '',
         documentation: '',
         createdAt: now,
         updatedAt: now

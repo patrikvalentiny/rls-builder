@@ -10,6 +10,7 @@ const cellClass = 'align-top text-xs';
 
 const initialFilters = {
     name: '',
+    collection: '',
     schema: '',
     table: '',
     as: '' as '' | StoredPolicy['as'],
@@ -23,7 +24,6 @@ const initialFilters = {
 
 const PolicyOverview = () => {
     const [policies, setPolicies] = useState<StoredPolicy[]>([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [search, setSearch] = useState('');
 
@@ -40,12 +40,9 @@ const PolicyOverview = () => {
     useEffect(() => {
         const run = async () => {
             try {
-                setLoading(true);
                 await refresh();
             } catch (e) {
                 setError(e instanceof Error ? e.message : 'Failed to load policies');
-            } finally {
-                setLoading(false);
             }
         };
 
@@ -56,6 +53,7 @@ const PolicyOverview = () => {
         const globalQuery = search.trim().toLowerCase();
         const normalizedFilters = {
             name: filters.name.trim().toLowerCase(),
+            collection: filters.collection.trim().toLowerCase(),
             schema: filters.schema.trim().toLowerCase(),
             table: filters.table.trim().toLowerCase(),
             as: filters.as,
@@ -74,6 +72,7 @@ const PolicyOverview = () => {
             if (globalQuery) {
                 const blob = [
                     p.name,
+                    p.collection,
                     p.schema,
                     p.table,
                     p.as,
@@ -88,6 +87,7 @@ const PolicyOverview = () => {
             }
 
             if (normalizedFilters.name && !p.name.toLowerCase().includes(normalizedFilters.name)) return false;
+            if (normalizedFilters.collection && !p.collection.toLowerCase().includes(normalizedFilters.collection)) return false;
             if (normalizedFilters.schema && !p.schema.toLowerCase().includes(normalizedFilters.schema)) return false;
             if (normalizedFilters.table && !p.table.toLowerCase().includes(normalizedFilters.table)) return false;
             if (normalizedFilters.as && p.as !== normalizedFilters.as) return false;
@@ -106,6 +106,14 @@ const PolicyOverview = () => {
         const set = new Set<string>();
         for (const p of policies) {
             if (p.schema.trim()) set.add(p.schema.trim());
+        }
+        return Array.from(set).sort((a, b) => a.localeCompare(b));
+    }, [policies]);
+
+    const collectionOptions = useMemo(() => {
+        const set = new Set<string>();
+        for (const p of policies) {
+            if (p.collection.trim()) set.add(p.collection.trim());
         }
         return Array.from(set).sort((a, b) => a.localeCompare(b));
     }, [policies]);
@@ -201,6 +209,7 @@ const PolicyOverview = () => {
                         <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Collection</th>
                                 <th>Schema.Table</th>
                                 <th>As</th>
                                 <th>For</th>
@@ -219,6 +228,18 @@ const PolicyOverview = () => {
                                         value={filters.name}
                                         onChange={(e) => setFilters(prev => ({ ...prev, name: e.target.value }))}
                                     />
+                                </th>
+                                <th>
+                                    <select
+                                        className="select select-bordered select-xs w-44"
+                                        value={filters.collection}
+                                        onChange={(e) => setFilters(prev => ({ ...prev, collection: e.target.value }))}
+                                    >
+                                        <option value="">All collections</option>
+                                        {collectionOptions.map(c => (
+                                            <option key={c} value={c}>{c}</option>
+                                        ))}
+                                    </select>
                                 </th>
                                 <th>
                                     <div className="flex flex-col gap-2">
@@ -333,6 +354,10 @@ const PolicyOverview = () => {
                                         </td>
 
                                         <td className={cellClass}>
+                                            <span>{p.collection}</span>
+                                        </td>
+
+                                        <td className={cellClass}>
                                             <span title={`${p.schema}.${p.table}`}>{(p.schema ? `${p.schema}.` : '') + p.table}</span>
                                         </td>
 
@@ -395,6 +420,18 @@ const PolicyOverview = () => {
                                     <div className="card bg-base-100 shadow-xl border border-base-300">
                                         <div className="card-body">
                                             <h4 className="card-title text-xl">Documentation</h4>
+                                            <div className="form-control mb-4">
+                                                <label className="label">
+                                                    <span className="label-text">Collection</span>
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    className="input input-bordered"
+                                                    value={draft.collection}
+                                                    onChange={(e) => updateDraft('collection', e.target.value)}
+                                                    placeholder="Group name for policies"
+                                                />
+                                            </div>
                                             <textarea
                                                 className="textarea textarea-bordered w-full"
                                                 rows={6}
