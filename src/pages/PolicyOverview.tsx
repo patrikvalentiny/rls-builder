@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
-import { deletePolicy, listPolicies, makeBlankPolicy, upsertPolicy } from '../utils/policyStore';
+import { useMemo, useState } from 'react';
+import { makeBlankPolicy } from '../utils/policyStore';
+import { usePolicies } from '../hooks/usePolicies';
 import { buildCreatePolicySql } from '../utils/policyBuilder';
-import PolicyForm from '../components/PolicyForm';
-import SqlPreview from '../components/SqlPreview';
-import { COMMAND_TYPES, type CreatePolicy } from '../types/createPolicy';
+import { COMMAND_TYPES } from '../types/createPolicy';
 import type { StoredPolicy } from '../types/storedPolicy';
+import PolicyEditorDialog from '../components/PolicyEditorDialog';
 
 const cellClass = 'align-top text-xs';
 
@@ -23,31 +23,13 @@ const initialFilters = {
 };
 
 const PolicyOverview = () => {
-    const [policies, setPolicies] = useState<StoredPolicy[]>([]);
-    const [error, setError] = useState<string | null>(null);
+    const { policies, error, deletePolicy, upsertPolicy } = usePolicies();
     const [search, setSearch] = useState('');
 
     const [filters, setFilters] = useState(initialFilters);
 
     const [isEditorOpen, setIsEditorOpen] = useState(false);
     const [draft, setDraft] = useState<StoredPolicy | null>(null);
-
-    const refresh = async () => {
-        const next = await listPolicies();
-        setPolicies(next);
-    };
-
-    useEffect(() => {
-        const run = async () => {
-            try {
-                await refresh();
-            } catch (e) {
-                setError(e instanceof Error ? e.message : 'Failed to load policies');
-            }
-        };
-
-        run();
-    }, []);
 
     const filtered = useMemo(() => {
         const globalQuery = search.trim().toLowerCase();
@@ -144,10 +126,8 @@ const PolicyOverview = () => {
         setDraft(null);
     };
 
-    const saveDraft = async () => {
-        if (!draft) return;
-        await upsertPolicy(draft);
-        await refresh();
+    const saveDraft = async (updatedPolicy: StoredPolicy) => {
+        await upsertPolicy(updatedPolicy);
         closeEditor();
     };
 
@@ -163,15 +143,6 @@ const PolicyOverview = () => {
     const remove = async (id: string) => {
         if (!confirm('Delete this policy?')) return;
         await deletePolicy(id);
-        await refresh();
-    };
-
-    const updateDraft = <K extends keyof StoredPolicy>(key: K, value: StoredPolicy[K]) => {
-        setDraft(prev => (prev ? { ...prev, [key]: value } : prev));
-    };
-
-    const updatePolicyField = (field: keyof CreatePolicy, value: string) => {
-        setDraft(prev => (prev ? { ...prev, [field]: value } : prev));
     };
 
     return (
@@ -403,66 +374,12 @@ const PolicyOverview = () => {
                 </div>
 
                 {isEditorOpen && draft && (
-                    <dialog
-                        className="modal modal-open"
-                        onCancel={(e) => {
-                            e.preventDefault();
-                            closeEditor();
-                        }}
-                    >
-                        <div className="modal-box max-w-7xl">
-                            <h3 className="font-bold text-lg mb-4">{draft.name ? 'Edit Policy' : 'New Policy'}</h3>
-
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <div className="flex flex-col gap-6">
-                                    <PolicyForm policy={draft} onChange={updatePolicyField} />
-
-                                    <div className="card bg-base-100 shadow-xl border border-base-300">
-                                        <div className="card-body">
-                                            <h4 className="card-title text-xl">Documentation</h4>
-                                            <div className="form-control mb-4">
-                                                <label className="label">
-                                                    <span className="label-text">Collection</span>
-                                                </label>
-                                                <input
-                                                    type="text"
-                                                    className="input input-bordered"
-                                                    value={draft.collection}
-                                                    onChange={(e) => updateDraft('collection', e.target.value)}
-                                                    placeholder="Group name for policies"
-                                                />
-                                            </div>
-                                            <textarea
-                                                className="textarea textarea-bordered w-full"
-                                                rows={6}
-                                                value={draft.documentation}
-                                                onChange={(e) => updateDraft('documentation', e.target.value)}
-                                                placeholder="Notes, rationale, links, examples…"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <SqlPreview code={buildCreatePolicySql(draft)} />
-                            </div>
-
-                            <div className="modal-action">
-                                <button className="btn btn-ghost" onClick={closeEditor}>Cancel</button>
-                                <button className="btn btn-primary" onClick={saveDraft}>Save</button>
-                            </div>
-                        </div>
-
-                        <form method="dialog" className="modal-backdrop">
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    closeEditor();
-                                }}
-                            >
-                                close
-                            </button>
-                        </form>
-                    </dialog>
+                    <PolicyEditorDialog
+                        initialPolicy={draft}
+                        isOpen={isEditorOpen}
+                        onSave={saveDraft}
+                        onCancel={closeEditor}
+                    />
                 )}
             </div>
         </div>

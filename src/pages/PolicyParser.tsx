@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { parsePolicy } from "../utils/policyParser";
 import type { CreatePolicy } from "../types/createPolicy";
-import { makeBlankPolicy, upsertPolicy } from "../utils/policyStore";
+import { usePolicies } from "../hooks/usePolicies";
 import { PARSER_LAST_SQL } from "../utils/storageKeys";
 import { rls_store } from "../utils/storage";
+import { makeBlankPolicy } from "../utils/policyStore";
 
 const PolicyParser = () => {
+
+    const { upsertPolicy } = usePolicies();
     const [sqlInput, setSqlInput] = useState("");
     const [parsedPolicy, setParsedPolicy] = useState<CreatePolicy | null>(null);
     const [error, setError] = useState<string | null>(null);

@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import type { CreatePolicy } from "../types/createPolicy";
-import PolicyForm from "../components/PolicyForm";
-import SqlPreview from "../components/SqlPreview";
+import PolicyEditorLayout from "../components/PolicyEditorLayout";
 import { buildCreatePolicySql } from "../utils/policyBuilder";
 import { parsePolicy } from "../utils/policyParser";
 import { makeBlankPolicy, upsertPolicy } from "../utils/policyStore";
@@ -39,6 +38,11 @@ const PolicyBuilder = () => {
         rls_store.setItem(BUILDER_LAST_SQL, { ...policy, documentation: value });
     };
 
+    const handleCollectionChange = (value: string) => {
+        setPolicy(prev => ({ ...prev, collection: value }));
+        rls_store.setItem(BUILDER_LAST_SQL, { ...policy, collection: value });
+    };
+
     const handleSaveToOverview = async () => {
         const base = makeBlankPolicy();
         await upsertPolicy({
@@ -65,30 +69,24 @@ const PolicyBuilder = () => {
             setImportError(null);
             (document.getElementById('import_modal') as HTMLDialogElement).close();
         } catch (err) {
-            setImportError(err.message);
+            if (err instanceof Error) {
+                setImportError(err.message);
+            } else {
+                setImportError('Failed to parse policy SQL');
+            }
         }
     };
 
     return (
         <div className="min-h-full bg-base-100 p-6">
-            <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="flex flex-col gap-6">
-                        <PolicyForm policy={policy} onChange={handleChange} />
-                        <div className="card bg-base-100 shadow-xl border border-base-300">
-                            <div className="card-body">
-                                <h4 className="card-title text-xl">Documentation</h4>
-                                <textarea
-                                    className="textarea textarea-bordered w-full"
-                                    rows={6}
-                                    value={policy.documentation}
-                                    onChange={(e) => handleDocumentationChange(e.target.value)}
-                                    placeholder="Notes, rationale"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-3">
+            <div className="max-w-full mx-auto">
+                <PolicyEditorLayout
+                    policy={policy}
+                    onChange={handleChange}
+                    onDocumentationChange={handleDocumentationChange}
+                    onCollectionChange={handleCollectionChange}
+                    sql={code}
+                    rightColumnHeader={
                         <div className="flex items-center justify-between">
                             <div className="flex gap-2">
                                 <button className="btn btn-primary btn-sm" onClick={handleSaveToOverview}>
@@ -103,9 +101,8 @@ const PolicyBuilder = () => {
                             </div>
                             {saveStatus && <div className="text-sm text-success">{saveStatus}</div>}
                         </div>
-                        <SqlPreview code={code} />
-                    </div>
-                </div>
+                    }
+                />
             </div>
 
             {/* Import Modal */}

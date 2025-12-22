@@ -1,10 +1,22 @@
 import { Route, Switch, Redirect, Link } from "wouter";
+import { useState, useEffect } from "react";
 import PolicyBuilder from "./pages/PolicyBuilder";
 import PolicyParser from "./pages/PolicyParser";
 import PolicyOverview from "./pages/PolicyOverview";
+import PolicyList from "./pages/PolicyList";
+import { listPolicies } from "./utils/policyStore";
 import './App.css'
 
 function App() {
+  const [collections, setCollections] = useState<string[]>([]);
+
+  useEffect(() => {
+      listPolicies().then(policies => {
+          const uniqueCollections = Array.from(new Set(policies.map(p => p.collection).filter(Boolean)));
+          setCollections(uniqueCollections.sort());
+      });
+  }, []);
+
   return (
     <div className="drawer lg:drawer-open">
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
@@ -24,6 +36,8 @@ function App() {
             <Route path="/builder" component={PolicyBuilder} />
             <Route path="/parser" component={PolicyParser} />
             <Route path="/overview" component={PolicyOverview} />
+            <Route path="/policies/:collection" component={PolicyList} />
+            <Route path="/policies" component={PolicyList} />
             <Route>
               <div className="text-center mt-10">
                 <h2 className="text-2xl font-bold">404: Page Not Found</h2>
@@ -40,6 +54,15 @@ function App() {
             <li className=""><h1 className="text-2xl font-bold"><Link href="/"><a>RLS Builder</a></Link></h1></li>
             <ul className="menu">
               <li className=""><Link href="/overview"><a>Overview</a></Link></li>
+              <li>
+                <h2 className="menu-title">Collections</h2>
+                <ul>
+                    <li><Link href="/policies"><a>All Policies</a></Link></li>
+                    {collections.map(c => (
+                        <li key={c}><Link href={`/policies/${encodeURIComponent(c)}`}><a>{c}</a></Link></li>
+                    ))}
+                </ul>
+              </li>
               <li className=""><Link href="/builder"><a>Policy Builder</a></Link></li>
               <li className=""><Link href="/parser"><a>Policy Parser</a></Link></li>
             </ul>

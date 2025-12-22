@@ -1,6 +1,8 @@
+import type { CreatePolicy } from "./createPolicy";
 
-interface BuilderPolicy extends CreatePolicy {
+export interface BuilderPolicy extends CreatePolicy {
     documentation: string;
+    collection: string;
 }
 
 export const DEFAULT_POLICY: BuilderPolicy = {
@@ -12,5 +14,6 @@ export const DEFAULT_POLICY: BuilderPolicy = {
     to: '',
     using: '',
     withCheck: '',
-    documentation: ''
+    documentation: '',
+    collection: ''
 };
