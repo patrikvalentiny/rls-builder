@@ -1,4 +1,4 @@
-import type { CreatePolicy } from '../types/createPolicy';
+import type { COMMAND_TYPES, CreatePolicy, POLICY_TYPES } from '../types/createPolicy';
 
 class PolicyParser {
     private pos = 0;
@@ -38,7 +38,7 @@ class PolicyParser {
             table = this.parseIdentifier();
         }
 
-        let asClause: 'PERMISSIVE' | 'RESTRICTIVE' = 'PERMISSIVE';
+        let asClause: typeof POLICY_TYPES[number] = 'PERMISSIVE';
         if (this.matchKeyword('AS')) {
             const type = this.parseKeyword();
             if (type !== 'PERMISSIVE' && type !== 'RESTRICTIVE') {
@@ -47,7 +47,7 @@ class PolicyParser {
             asClause = type;
         }
 
-        let forClause: 'ALL' | 'SELECT' | 'INSERT' | 'UPDATE' | 'DELETE' = 'ALL';
+        let forClause: typeof COMMAND_TYPES[number] = 'ALL';
         if (this.matchKeyword('FOR')) {
             const cmd = this.parseKeyword();
             if (!['ALL', 'SELECT', 'INSERT', 'UPDATE', 'DELETE'].includes(cmd)) {

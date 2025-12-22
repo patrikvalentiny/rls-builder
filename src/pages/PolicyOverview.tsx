@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import Header from "../components/Header";
 import { deletePolicy, listPolicies, makeBlankPolicy, upsertPolicy } from '../utils/policyStore';
 import { buildCreatePolicySql } from '../utils/policyBuilder';
 import PolicyForm from '../components/PolicyForm';
 import SqlPreview from '../components/SqlPreview';
-import type { CreatePolicy } from '../types/createPolicy';
+import { COMMAND_TYPES, type CreatePolicy } from '../types/createPolicy';
 import type { StoredPolicy } from '../types/storedPolicy';
 
 const cellClass = 'align-top text-xs';
@@ -168,10 +167,8 @@ const PolicyOverview = () => {
     };
 
     return (
-        <div className="min-h-dvh bg-base-100 p-6">
+        <div className="min-h-full bg-base-100 p-6">
             <div className="mx-auto">
-                <Header />
-
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-4">
                     <div>
                         <h2 className="text-2xl font-bold">Policy Overview</h2>
@@ -198,10 +195,6 @@ const PolicyOverview = () => {
                         <span>{error}</span>
                     </div>
                 )}
-
-                <div className="text-sm text-base-content/70 mb-2">
-                    {loading ? 'Loading…' : `${filtered.length} policy${filtered.length === 1 ? '' : 'ies'}`}
-                </div>
 
                 <div className="overflow-x-auto border border-base-300 rounded-box">
                     <table className="table table-zebra table-sm">
@@ -270,11 +263,9 @@ const PolicyOverview = () => {
                                         onChange={(e) => setFilters(prev => ({ ...prev, for: e.target.value as typeof filters.for }))}
                                     >
                                         <option value="">All</option>
-                                        <option value="ALL">ALL</option>
-                                        <option value="SELECT">SELECT</option>
-                                        <option value="INSERT">INSERT</option>
-                                        <option value="UPDATE">UPDATE</option>
-                                        <option value="DELETE">DELETE</option>
+                                        {COMMAND_TYPES.map(type => (
+                                            <option key={type} value={type}>{type}</option>
+                                        ))}
                                     </select>
                                 </th>
                                 <th>

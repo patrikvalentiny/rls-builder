@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
 import type { CreatePolicy } from "../types/createPolicy";
-import Header from "../components/Header";
 import PolicyForm from "../components/PolicyForm";
 import SqlPreview from "../components/SqlPreview";
 import { buildCreatePolicySql } from "../utils/policyBuilder";
@@ -52,9 +51,8 @@ const PolicyBuilder = () => {
     };
 
     return (
-        <div className="min-h-screen bg-base-100 p-6">
+        <div className="min-h-full bg-base-100 p-6">
             <div className="max-w-7xl mx-auto">
-                <Header />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <PolicyForm policy={policy} onChange={handleChange} />
                     <div className="flex flex-col gap-3">

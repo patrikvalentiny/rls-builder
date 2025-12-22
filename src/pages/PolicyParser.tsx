@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import CodeEditor from '@uiw/react-textarea-code-editor';
-import Header from "../components/Header";
 import { parsePolicy } from "../utils/policyParser";
 import type { CreatePolicy } from "../types/createPolicy";
 import { makeBlankPolicy, upsertPolicy } from "../utils/policyStore";
@@ -72,9 +71,8 @@ const PolicyParser = () => {
     );
 
     return (
-        <div className="min-h-screen bg-base-100 p-6">
+        <div className="min-h-full bg-base-100 p-6">
             <div className="max-w-7xl mx-auto">
-                <Header />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div className="card bg-base-100 shadow-xl border border-base-300">
                         <div className="card-body">
