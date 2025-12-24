@@ -1,22 +1,22 @@
 import { Route, Switch, Redirect, Link } from "wouter";
-import { useState, useEffect } from "react";
 import PolicyBuilder from "./pages/PolicyBuilder";
 import PolicyParser from "./pages/PolicyParser";
 import PolicyOverview from "./pages/PolicyOverview";
 import PolicyList from "./pages/PolicyList";
-import { listPolicies } from "./utils/policyStore";
 import './App.css'
+import { usePolicies } from "./hooks/usePolicies";
 
 function App() {
-  const [collections, setCollections] = useState<string[]>([]);
+  const { collections } = usePolicies();
 
-  useEffect(() => {
-      listPolicies().then(policies => {
-          const uniqueCollections = Array.from(new Set(policies.map(p => p.collection).filter(Boolean)));
-          setCollections(uniqueCollections.sort());
-      });
-  }, []);
-
+  const collectionLinks = collections.map((collection) => (
+    <li key={collection}>
+      <Link href={`/policies/${encodeURIComponent(collection)}`}>
+        {collection}
+      </Link>
+    </li>
+  ));
+  
   return (
     <div className="drawer lg:drawer-open">
       <input id="my-drawer-3" type="checkbox" className="drawer-toggle" />
@@ -26,7 +26,7 @@ function App() {
           <label htmlFor="my-drawer-3" className="btn btn-square lg:hidden">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
           </label>
-          <h1 className="text-2xl font-bold"><Link href="/"><a>RLS Builder</a></Link></h1>
+          <h1 className="text-2xl font-bold"><Link href="/">RLS Builder</Link></h1>
 
         </header>
 
@@ -51,20 +51,18 @@ function App() {
         <label htmlFor="my-drawer-3" aria-label="close sidebar" className="drawer-overlay"></label>
         <ul className="menu bg-base-200 min-h-full p-4 flex flex-col justify-between">
           <div>
-            <li className=""><h1 className="text-2xl font-bold"><Link href="/"><a>RLS Builder</a></Link></h1></li>
+            <li className=""><h1 className="text-2xl font-bold"><Link href="/">RLS Builder</Link></h1></li>
             <ul className="menu">
-              <li className=""><Link href="/overview"><a>Overview</a></Link></li>
+              <li className=""><Link href="/overview">Overview</Link></li>
               <li>
                 <h2 className="menu-title">Collections</h2>
                 <ul>
-                    <li><Link href="/policies"><a>All Policies</a></Link></li>
-                    {collections.map(c => (
-                        <li key={c}><Link href={`/policies/${encodeURIComponent(c)}`}><a>{c}</a></Link></li>
-                    ))}
+                  <li><Link href="/policies">All Policies</Link></li>
+                    {collectionLinks}
                 </ul>
               </li>
-              <li className=""><Link href="/builder"><a>Policy Builder</a></Link></li>
-              <li className=""><Link href="/parser"><a>Policy Parser</a></Link></li>
+              <li className=""><Link href="/builder">Policy Builder</Link></li>
+              <li className=""><Link href="/parser">Policy Parser</Link></li>
             </ul>
             {/* <div className="divider"></div> */}
           </div>

@@ -33,7 +33,7 @@ export async function listPolicies(): Promise<StoredPolicy[]> {
     return Array.isArray(policies) ? policies : [];
 }
 
-async function writePolicies(policies: StoredPolicy[]): Promise<void> {
+export async function writePolicies(policies: StoredPolicy[]): Promise<void> {
     await rls_store.setItem(POLICIES_KEY, policies);
 }
 

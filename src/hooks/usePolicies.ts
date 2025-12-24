@@ -4,6 +4,7 @@ import type { StoredPolicy } from '../types/storedPolicy';
 
 export function usePolicies() {
     const [policies, setPolicies] = useState<StoredPolicy[]>([]);
+    const [collections, setCollections] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -12,6 +13,7 @@ export function usePolicies() {
         try {
             const data = await listPolicies();
             setPolicies(data);
+            setCollections(Array.from(new Set(data.map(p => p.collection).filter(Boolean))).sort());
             setError(null);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load policies');
@@ -34,5 +36,5 @@ export function usePolicies() {
         await refresh();
     }, [refresh]);
     
-    return { policies, loading, error, refresh, deletePolicy, upsertPolicy };
+    return { policies, loading, error, refresh, deletePolicy, upsertPolicy, setPolicies, collections };
 }
