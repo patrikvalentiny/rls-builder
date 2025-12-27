@@ -1,6 +1,7 @@
 import type { StoredPolicy } from "../types/storedPolicy";
 
 export const exportPolicies = async (policies: StoredPolicy[], filename: string = 'policies') => {
+    policies.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
     const data = JSON.stringify(policies, null, 2);
 
     // Force location file save dialog if supported

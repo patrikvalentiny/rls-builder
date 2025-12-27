@@ -5,6 +5,8 @@ import PolicyEditorDialog from '../components/PolicyEditorDialog';
 import type { StoredPolicy } from '../types/storedPolicy';
 import { exportPolicies, importPolicies } from '../utils/collectionsIO';
 import { writePolicies } from '../utils/policyStore';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import PolicyPdfDocument from '../components/PolicyPdfDocument';
 
 export default function PolicyList() {
     const [match, params] = useRoute("/policies/:collection");
@@ -53,6 +55,13 @@ export default function PolicyList() {
                     onClick={() => exportPolicies(policies, 'policies')}
                 >Export All Policies
                 </button>
+                <PDFDownloadLink
+                    document={<PolicyPdfDocument policies={policies} />}
+                    fileName={'rls-policies.pdf'}
+                    className="btn btn-secondary"
+                >
+                    {({ loading }) => (loading ? 'Loading PDF...' : 'Download PDF')}
+                </PDFDownloadLink>
                 <button
                     className="btn btn-primary"
                     onClick={() => {

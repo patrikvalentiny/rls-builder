@@ -5,6 +5,8 @@ import { buildCreatePolicySql } from '../utils/policyBuilder';
 import { COMMAND_TYPES } from '../types/createPolicy';
 import type { StoredPolicy } from '../types/storedPolicy';
 import PolicyEditorDialog from '../components/PolicyEditorDialog';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import PolicyPdfDocument from '../components/PolicyPdfDocument';
 
 const cellClass = 'align-top text-xs';
 
@@ -163,6 +165,13 @@ const PolicyOverview = () => {
                         <button className="btn btn-ghost btn-sm" onClick={resetAll}>
                             Reset
                         </button>
+                        <PDFDownloadLink
+                            document={<PolicyPdfDocument policies={filtered} />}
+                            fileName="rls-policies.pdf"
+                            className="btn btn-secondary btn-sm"
+                        >
+                            {({ loading }) => (loading ? 'Loading...' : 'Download PDF')}
+                        </PDFDownloadLink>
                         <button className="btn btn-primary btn-sm" onClick={addNew}>
                             Add policy
                         </button>
