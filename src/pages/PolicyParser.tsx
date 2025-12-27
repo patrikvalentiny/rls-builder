@@ -6,6 +6,7 @@ import { usePolicies } from "../hooks/usePolicies";
 import { PARSER_LAST_SQL } from "../utils/storageKeys";
 import { rls_store } from "../utils/storage";
 import { makeBlankPolicy } from "../utils/policyStore";
+import { validatePolicy } from "../utils/policyValidation";
 
 const PolicyParser = () => {
 
@@ -14,6 +15,8 @@ const PolicyParser = () => {
     const [parsedPolicy, setParsedPolicy] = useState<CreatePolicy | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [saveStatus, setSaveStatus] = useState<string | null>(null);
+
+    const validationResults = parsedPolicy ? validatePolicy(parsedPolicy) : [];
 
   
 
@@ -107,6 +110,19 @@ const PolicyParser = () => {
                                 </div>
                             ) : parsedPolicy ? (
                                 <div className="flex flex-col gap-3">
+                                    {validationResults.length > 0 && (
+                                        <div className="flex flex-col gap-2 mb-2">
+                                            {validationResults.map((result, idx) => (
+                                                <div key={idx} role="alert" className={`alert ${result.severity === 'error' ? 'alert-error' : result.severity === 'warning' ? 'alert-warning' : 'alert-info'} shadow-sm`}>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                    <div>
+                                                        <h3 className="font-bold text-sm">{result.title}</h3>
+                                                        <div className="text-xs">{result.message}</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                     <div className="flex items-center justify-between">
                                         <button className="btn btn-primary btn-sm" onClick={handleSaveToOverview}>
                                             Save to Overview
