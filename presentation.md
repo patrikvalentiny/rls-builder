@@ -1,7 +1,7 @@
 ---
 marp: true
 # theme: nord
-class: invert
+# class: invert
 paginate: true
 
 ---
@@ -32,8 +32,6 @@ Patrik Valentiny
 
 ## Project Solution: The RLS Toolkit
 
-
-
 *A locally-run React Single Page Application (SPA)*
 
 ### 1. Policy Builder (Security by Design)
@@ -53,6 +51,10 @@ Patrik Valentiny
 ---
 
 ![bg fit](./screenshots/policy-builder.png)
+
+---
+
+![bg fit](./screenshots/collection-view.png)
 
 ---
 
@@ -96,6 +98,6 @@ No known vulnerabilities found
 
 ### Summary
 
-- This project bridges the gap between **raw SQL complexity** and **secure database design**.
+- This project shrinks the gap between **raw SQL** and **secure database policies**.
 - Empowers developers to implement RLS policies confidently.
 - Create auditable documentation for compliance.
